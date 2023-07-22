@@ -1,0 +1,324 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Table from 'react-bootstrap/Table';
+import {  UpsertgetPersonalDetails,
+ getSinglePersonalDetails } from '../api';
+
+import AlertMessage from './constants/messagealert';
+import LoadingIndicator from './External/LoadingIndicator';
+function PersonalDetails() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const [user, setUser] = useState([]);
+  const [show, setShow] = useState(false);
+  const [loading, setloading] = useState(false);
+  const [errmessage, seterrmessage] = useState('');
+  const [errmessagetype, seterrmessagetype] = useState('')
+  const [alert, setalert] = useState(false);
+  const navigate = useNavigate();
+  const gotoPersonaldetails = (d) => {
+    navigate(`bank_upadate/?id=${d.id}`);
+  }
+  
+
+  const [state, setState] = useState({
+    id: "",
+    name: "",
+    image: "",
+    phone: "",
+    email: "",
+    gender: "",
+    dob: "",
+    address: "",
+    state: "",
+    transdate: "",
+
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setState((prevProps) => ({
+      ...prevProps,
+      [name]: value
+    }));
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = {
+      name: state.name,
+      image: state.photo,
+      email: state.email,
+      phone: state.phone,
+      gender: state.gender,
+      dob: state.dob,
+      address: state.address,
+      state: state.state,
+      transdate: state.transdate,
+      vid: '9'
+    }
+
+
+
+    UpsertgetPersonalDetails(data).then((res) => {
+      if (res.status === true && res) {
+        setShow(false);
+        setalert(true);
+        seterrmessagetype('success');
+        seterrmessage(`${res.data} Successfully`)
+        getPersonalData();
+
+      }
+      else if (res.status === false && res) {
+        setShow(false);
+        setalert(true);
+        seterrmessagetype('failure');
+        seterrmessage(`Something went wrong, Please tray again..`)
+        getPersonalData();
+      }
+    })
+  };
+  const getPersonalData = () => {
+
+    const id = params.get("id");
+    // debugger;
+    getSinglePersonalDetails(id).then(res => {
+      if (res) {
+        console.log(res);
+        setloading(true);
+        setUser(res);
+      }
+    })
+  }
+
+  useEffect(() => {
+    getPersonalData();
+  }, [])
+  const column = [
+    {
+      name: "Id",
+      selector: (row) => row.id,
+      sortable: true
+    },
+    {
+      name: "Name",
+      selector: (row) => <p onClick={() => gotoPersonaldetails(row)}>{row.name}</p>,
+      sortable: true
+    },
+    {
+      name: "Image",
+      selector: (row) => <img height={"80px"} width={"80px"} src={"https://naksa.org/vendor-image/"+row.photo} alt="" />,
+      sortable: true
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone,
+      sortable: true
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true
+    },
+    {
+      name: "Gender",
+      selector: (row) => row.gender,
+      sortable: true
+    },
+    {
+      name: "DOB",
+      selector: (row) => row.dob,
+      sortable: true
+    },
+    {
+      name: "Address",
+      selector: (row) => `${row.address}, ${row.city},${row.distric}, ${row.state}, ${row.pincode} `,
+      sortable: true
+    },
+    {
+      name: "State",
+      selector: (row) => row.state,
+      sortable: true
+    },
+
+
+    {
+      name: "Transdate",
+      selector: (row) => row.transdate,
+      sortable: true
+    },
+    {
+      name: "Action",
+      selector: (row) => <p onClick={() => gotoPersonaldetails(row)}><Link to="/all-vendor">
+        View
+      </Link></p>
+
+      // selector:(row)=><p onClick={()=> gotoPersonaldetails(row)}>{row.name}</p>,
+
+    },
+
+  ]
+  
+  return (
+    <div>
+      <div>
+        <div className="content-body">
+          <div className='container-fluid'>
+            <AlertMessage
+              show={alert}
+              onhide={() => setalert(false)}
+              data={errmessagetype}
+              message={errmessage}
+            />
+          </div>
+          {
+            loading === true ?
+              <div className="container-fluid">
+
+
+                <div className="row">
+                  <div className="col-12">
+                    <div className="card">
+                      <div className="card-header">
+                        <h4 className="card-title">All Vendor</h4>
+                       
+                      </div>
+                      <div className="card-body">
+                       <Table striped bordered hover>
+                            <thead>
+                                <tr style={{color:'white',background:'#b11c26'}}>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Gender</th>
+                                    <th>Address</th>
+                                    <th>latitude</th>
+                                    <th>longitude</th>
+                                </tr>
+
+                            </thead>
+                            
+                            <tbody>
+                                <tr >
+                                    <td key={user.id}>{user.user.id}</td>
+                                    <td>{user.user.name}</td>
+                                    <td>{user.user.phone}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.gender}</td>
+                                    <td>{user.address}</td>
+                                    <td>{user.latitude}</td>
+                                    <td>{user.longitude}</td>
+                            
+                                </tr>
+                               
+                            </tbody>
+                        </Table> 
+
+                                <Table striped bordered hover>
+                            <thead>
+                                <tr style={{color:'white',background:'#b11c26'}}>
+                                    {/* <th>ID</th> */}
+                                    <th>AadharCard</th>
+                                    <th>PanCard</th>
+                                    <th>AccountNumber</th>
+                                    <th>IFSCCode</th>
+                                    <th>AccountHolder</th>
+                                    {/* <th>BankName</th> */}
+                                    {/* <th>Branchth> */}
+                                </tr>
+
+                            </thead>
+                            
+                            <tbody>
+                                <tr >
+                                    {/* <td key={user.id}>{user.user.id}</td> */}
+                                    <td>{user.aadhar_card}</td>
+                                    <td>{user.pan_card}</td>
+                                    <td>{user.account_number}</td>
+                                    <td>{user.ifsc_code}</td>
+                                    <td>{user.account_holder}</td>
+                                    
+                            
+                                </tr>
+                               
+                            </tbody>
+                        </Table> 
+                              
+
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr style={{color:'white',background:'#b11c26'}}>
+                                    {/* <th>ID</th> */}
+                                    <th>BankName</th>
+                                    <th>Branch</th>
+                                    <th>Qualification</th>
+                                    <th>Age</th>
+                                    <th>NotificationId</th>
+                                    {/* <th>Amount</th>
+                                    <th>No_OF_Vender</th> */}
+                                    {/* <th>BankName</th> */}
+                                    {/* <th>Branchth> */}
+                                </tr>
+
+                            </thead>
+                            
+                            <tbody>
+                                <tr style={{background:'white'}}>
+                                    {/* <td key={user.id}>{user.user.id}</td> */}
+                                    <td>{user.bank_name}</td>
+                                    <td>{user.branch}</td>
+                                    <td>{user.qualification}</td>
+                                    <td>{user.age}</td>
+                                    <td>{user.notification_id}</td>
+                                    
+                            
+                                </tr>
+                               
+                            </tbody>
+                        </Table> 
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr style={{color:'white',background:'#b11c26'}}>
+                                   
+                                    {/* <th>ID</th> */}
+                                    <th>Amount</th>
+                                    <th>No_OF_Vender</th> 
+                                    {/* <th>BankName</th> */}
+                                    {/* <th>Branchth> */}
+                                </tr>
+
+                            </thead>
+                            
+                            <tbody>
+                                <tr >
+                                    <td>{user.amount}</td>
+                                    <td>{user.no_of_vender}</td>
+                                    
+                            
+                                </tr>
+                               
+                            </tbody>
+                        </Table> 
+
+                      
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              : <div><LoadingIndicator /></div>
+          }
+        </div>
+      </div>
+
+
+    </div >
+
+  )
+}
+
+export default PersonalDetails;

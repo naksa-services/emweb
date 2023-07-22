@@ -1,0 +1,16 @@
+.Stepperbg{
+    /* background: rgb(245, 243, 243); */
+    padding: 15px;
+    border: 1px solid black;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px #f7f4f4;
+}
+.Formbg{
+    /* background: rgb(245, 243, 243); */
+    padding: 15px;
+    border: 1px solid black;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px #f8f6f6;
+}
